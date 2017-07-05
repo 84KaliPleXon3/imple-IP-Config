@@ -7,7 +7,7 @@ Simple IP Config is a small, portable ip changer utility to change common Window
 
 [Download Now][latest]{:.button}
 
-![latest screenshot](https://raw.github.com/KurtisLiggett/simple-ip-config/master/docs/public/screenshot_latest.jpg "latest screenshot")
+![latest screenshot](public/screenshot_latest.jpg "latest screenshot")
 
 ### Features
 ---
