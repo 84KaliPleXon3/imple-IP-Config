@@ -52,7 +52,7 @@ a.button{
     color: #fff;
     background: #3b9b6d;
     padding: 8px 10px;
-    border-radius: 2em;
+    border-radius: 4px;
     text-align: center;
     z-index: 100;
     transition: opacity .8s ease;
