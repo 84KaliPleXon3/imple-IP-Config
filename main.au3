@@ -40,8 +40,8 @@
 ;==============================================================================
 
 
-#requireadmin
-#NoTrayIcon	;prevent double icon when checking for already running instance
+#RequireAdmin
+#NoTrayIcon	 ;prevent double icon when checking for already running instance
 
 
 #Region Global Variables
@@ -55,7 +55,7 @@ Global $adapters
 Global Const $wbemFlagReturnImmediately = 0x10
 Global Const $wbemFlagForwardOnly = 0x20
 
-Global $screenshot=0
+Global $screenshot = 0
 
 ;GUI stuff
 Global $winName = "Simple IP Config"
@@ -99,7 +99,7 @@ Global $ck_mintoTray, $ck_startinTray, $ck_saveAdapter, $ck_autoUpdate
 Global $timerstart, $timervalue
 
 Global $movetosubnet
-Global $mdblTimerInit=0, $mdblTimerDiff=1000, $mdblClick = 0, $mDblClickTime=500
+Global $mdblTimerInit = 0, $mdblTimerDiff = 1000, $mdblClick = 0, $mDblClickTime = 500
 Global $dragging = False, $dragitem = 0, $contextSelect = 0
 Global $prevWinPos, $winPosTimer, $writePos
 
@@ -131,16 +131,16 @@ Global Enum $tb_settings = 2000, $tb_tray
 #include <WindowsConstants.au3>
 #include <APIConstants.au3>
 #include <WinAPI.au3>
-#Include <WinAPIEx.au3>
+#include <WinAPIEx.au3>
 #include <GDIPlus.au3>
-#Include <GUIImageList.au3>
-#Include <GUIToolbar.au3>
+#include <GUIImageList.au3>
+#include <GUIToolbar.au3>
 #include <GuiListView.au3>
 #include <GuiIPAddress.au3>
 #include <GuiMenu.au3>
 #include <Misc.au3>
 #include <Color.au3>
-#Include <GUIEdit.au3>
+#include <GUIEdit.au3>
 #include <GuiComboBox.au3>
 #include <Array.au3>
 
@@ -149,6 +149,7 @@ Global Enum $tb_settings = 2000, $tb_tray
 #include "libraries\asyncRun.au3"
 #include "libraries\StringSize.au3"
 #include "libraries\Toast.au3"
+#include "libraries\COMBO.au3"
 #include "libraries\_NetworkStatistics.au3"
 #include "functions.au3"
 #include "events.au3"
@@ -159,13 +160,13 @@ Global Enum $tb_settings = 2000, $tb_tray
 
 #Region options
 Opt("TrayIconHide", 0)
-Opt("GUIOnEventMode",1)
-Opt("TrayAutoPause",0)
-Opt("TrayOnEventMode",1)
-Opt("TrayMenuMode",3)
+Opt("GUIOnEventMode", 1)
+Opt("TrayAutoPause", 0)
+Opt("TrayOnEventMode", 1)
+Opt("TrayMenuMode", 3)
 Opt("MouseCoordMode", 2)
 Opt("GUIResizeMode", $GUI_DOCKALL)
-Opt("WinSearchChildren",1)
+Opt("WinSearchChildren", 1)
 TraySetClick(16)
 #EndRegion options
 
@@ -193,12 +194,12 @@ Global $iMsg = _WinAPI_RegisterWindowMessage('newinstance_message')
 ;instance to show a popup message then close this instance.
 If _Singleton("Simple IP Config", 1) = 0 Then
 	_WinAPI_PostMessage(0xffff, $iMsg, 0x101, 0)
-    Exit
+	Exit
 EndIf
 
 ;begin main program
 _main()
-#EndRegion
+#EndRegion PROGRAM CONTROL
 
 ;------------------------------------------------------------------------------
 ; Title........: _main
@@ -209,8 +210,8 @@ Func _main()
 	;_loadAdapters()
 
 	; get current DPI scale factor
-	$dScale = _GDIPlus_GraphicsGetDPIRatio()
-	$iDPI = $dScale * 96
+	$dscale = _GDIPlus_GraphicsGetDPIRatio()
+	$iDPI = $dscale * 96
 
 	;get profiles list
 	_loadProfiles()
@@ -225,10 +226,10 @@ Func _main()
 	GUIRegisterMsg($iMsg, '_NewInstance')
 
 	;Add adapters the the combobox
-	If NOT IsArray( $adapters ) Then
-		MsgBox( 16, "Error", "There was a problem retrieving the adapters." )
+	If Not IsArray($adapters) Then
+		MsgBox(16, "Error", "There was a problem retrieving the adapters.")
 	Else
-		Adapter_Sort($adapters)	; connections sort ascending
+		Adapter_Sort($adapters) ; connections sort ascending
 		$defaultitem = Adapter_GetName($adapters, 0)
 		$sStartupAdapter = OPTIONS_GetValue($options, $OPTIONS_StartupAdapter)
 		If Adapter_Exists($adapters, $sStartupAdapter) Then
@@ -239,16 +240,16 @@ Func _main()
 		$aBlacklist = StringSplit($sAdapterBlacklist, "|")
 		If IsArray($aBlacklist) Then
 			Local $adapterNames = Adapter_GetNames($adapters)
-			For $i=0 to UBound($adapterNames)-1
+			For $i = 0 To UBound($adapterNames) - 1
 				$indexBlacklist = _ArraySearch($aBlacklist, $adapterNames[$i], 1)
-				if $indexBlacklist <> -1 Then ContinueLoop
-				GUICtrlSetData( $combo_adapters, $adapterNames[$i], $defaultitem )
+				If $indexBlacklist <> -1 Then ContinueLoop
+				GUICtrlSetData($combo_adapters, $adapterNames[$i], $defaultitem)
 			Next
 		EndIf
 	EndIf
 
 	_refresh(1)
-	ControlListView( $hgui, "", $list_profiles, "Select", 0 )
+	ControlListView($hgui, "", $list_profiles, "Select", 0)
 
 	;get system double-click time
 	$retval = DllCall('user32.dll', 'uint', 'GetDoubleClickTime')
@@ -261,7 +262,7 @@ Func _main()
 	GUICtrlSetData($domain, _DomainComputerBelongs())
 
 	$sAutoUpdate = OPTIONS_GetValue($options, $OPTIONS_AutoUpdate)
-	if($sAutoUpdate = "true" OR $sAutoUpdate = "1") Then
+	If ($sAutoUpdate = "true" Or $sAutoUpdate = "1") Then
 		_checksSICUpdate()
 	EndIf
 
@@ -270,7 +271,7 @@ Func _main()
 			_onLvDoneEdit()
 		EndIf
 
-		If $lv_startEditing and Not $lv_editing Then
+		If $lv_startEditing And Not $lv_editing Then
 			_onRename()
 		EndIf
 
@@ -280,7 +281,7 @@ Func _main()
 
 		Sleep(100)
 	WEnd
-EndFunc ; main()
+EndFunc   ;==>_main
 
 ;------------------------------------------------------------------------------
 ; Title........: _NewInstance
@@ -288,10 +289,10 @@ EndFunc ; main()
 ;                Display a tray tooltip alerting the user that the program is already running.
 ;------------------------------------------------------------------------------
 Func _NewInstance($hWnd, $iMsg, $iwParam, $ilParam)
-	if $iwParam == "0x00000101" Then
+	If $iwParam == "0x00000101" Then
 		;TrayTip("", "Simple IP Config is already running", 1)
-		$sMsg  = 'Simple IP Config is already running'
+		$sMsg = 'Simple IP Config is already running'
 		_Toast_Set(0, 0xAAAAAA, 0x000000, 0xFFFFFF, 0x000000, 10, "", 250, 250)
 		$aRet = _Toast_Show(0, "Simple IP Config", $sMsg, -5, False) ; Delay can be set here because script continues
 	EndIf
-EndFunc
+EndFunc   ;==>_NewInstance
